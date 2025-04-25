@@ -1,48 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import Todo from './interfaces/todo.interface';
-
-const todos: Todo[] = [
-  {
-    id: 1,
-    title: 'Todo 1',
-    content: '',
-  },
-];
+import TodoRepository from './todo.repository';
 
 @Injectable()
-export class TodoService {
+export default class TodoService {
+  constructor(private readonly todoRepository: TodoRepository) {}
+
   public async findAll(): Promise<Todo[]> {
-    return Promise.resolve(todos);
+    return this.todoRepository.findAll();
   }
 
   public create(todo: Omit<Todo, 'id'>) {
-    todos.push({
-      ...todo,
-      id: todos.length + 1,
-    });
+    return this.todoRepository.create(todo);
   }
 
   public update(id: number, updatedTodo: Omit<Todo, 'id'>) {
-    const index = todos.findIndex((t) => t.id === id);
-
-    if (index === -1) {
-      throw new Error('Todo not found');
-    }
-
-    todos[index] = {
-      ...todos[index],
-      ...updatedTodo,
-      id,
-    };
+    return this.todoRepository.update(id, updatedTodo);
   }
 
   public delete(id: number) {
-    const index = todos.findIndex((t) => t.id === id);
-
-    if (index === -1) {
-      throw new Error('Todo not found');
-    }
-
-    todos.splice(index, 1);
+    return this.todoRepository.delete(id);
   }
 }
