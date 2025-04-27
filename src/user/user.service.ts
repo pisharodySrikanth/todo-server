@@ -8,7 +8,7 @@ const users: User[] = [
     id: 1,
     userName: 'srikanth',
     name: 'Srikanth',
-    password: '$2b$10$yDsFmAZe0Jc/mQ4ZjdvQMO.pZDt11KLemWP7GJqlh9Jb1UHmG/Ce2 ',
+    password: '$2b$10$/jjePF/WOrEmDCVcuPbTIeT74yB7oYz0ImpjJ8xZ50wXiaJbBk7R2',
   },
   {
     id: 2,
@@ -61,6 +61,6 @@ export class UserService {
 
     users.push(newUser);
 
-    return omit(newUser, 'password');
+    return newUser; // omit(newUser, 'password');
   }
 }

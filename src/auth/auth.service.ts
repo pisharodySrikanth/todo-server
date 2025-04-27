@@ -1,24 +1,25 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { hash, compare } from 'bcrypt';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService as JwtLibService } from '@nestjs/jwt';
+import { compare, hash } from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants';
 import { UserService } from 'src/user/user.service';
 import SigninDto from './dto/signin.dto';
-import { User } from 'src/user/user.entity';
+import JwtService from './jwt.service';
+import RefreshTokenRepository from './refreshToken.repository';
+import JwtPayload from './types/jwtPayload';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly jwtLibService: JwtLibService,
   ) {}
-
-  private createJwtToken(userId: User['id'], userName: User['userName']) {
-    return this.jwtService.signAsync({
-      sub: userId,
-      userName,
-    });
-  }
 
   public async authenticate(userName: string, password: string) {
     const user = await this.userService.findByUserName(userName, true);
@@ -40,7 +41,7 @@ export class AuthService {
     }
 
     return {
-      jwtToken: await this.createJwtToken(user.id, user.userName),
+      jwtToken: await this.jwtService.createClientToken(user.id, user.userName),
     };
   }
 
@@ -54,7 +55,41 @@ export class AuthService {
 
     return {
       user: newUser,
-      jwtToken: await this.createJwtToken(newUser.id, newUser.userName),
+      jwtToken: await this.jwtService.createClientToken(
+        newUser.id,
+        newUser.userName,
+      ),
+    };
+  }
+
+  public async refresh(expiredToken: string, refreshToken: string) {
+    const expired = await this.jwtService.hasExpired(expiredToken);
+
+    if (!expired) {
+      throw new BadRequestException('Token not expired yet');
+    }
+
+    const refreshTokenExpired = await this.jwtService.hasExpired(refreshToken);
+
+    if (refreshTokenExpired) {
+      throw new BadRequestException('Refresh token expired');
+    }
+
+    const payload = this.jwtLibService.decode<JwtPayload>(expiredToken);
+    const isRefreshTokenValid = this.refreshTokenRepository.isValid(
+      refreshToken,
+      payload.sub,
+    );
+
+    if (!isRefreshTokenValid) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+
+    return {
+      jwtToken: await this.jwtService.createClientToken(
+        payload.sub,
+        payload.userName,
+      ),
     };
   }
 }
