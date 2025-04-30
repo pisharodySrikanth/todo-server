@@ -61,6 +61,6 @@ export class UserService {
 
     users.push(newUser);
 
-    return newUser; // omit(newUser, 'password');
+    return omit(newUser, 'password');
   }
 }
