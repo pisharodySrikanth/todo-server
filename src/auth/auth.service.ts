@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService as JwtLibService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants';
@@ -65,31 +61,8 @@ export class AuthService {
     };
   }
 
-  public async createRefreshedToken(
-    expiredToken: string,
-    refreshToken: string,
-  ) {
-    const expired = await this.jwtService.hasExpired(expiredToken);
-
-    if (!expired) {
-      throw new BadRequestException('Token not expired yet');
-    }
-
-    const refreshTokenExpired = await this.jwtService.hasExpired(refreshToken);
-
-    if (refreshTokenExpired) {
-      throw new BadRequestException('Refresh token expired');
-    }
-
+  public async createRefreshedToken(expiredToken: string) {
     const payload = this.jwtLibService.decode<JwtPayload>(expiredToken);
-    const isRefreshTokenValid = this.refreshTokenRepository.isValid(
-      refreshToken,
-      payload.sub,
-    );
-
-    if (!isRefreshTokenValid) {
-      throw new BadRequestException('Invalid refresh token');
-    }
 
     return {
       jwtToken: await this.jwtService.createClientToken(

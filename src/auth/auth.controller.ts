@@ -33,10 +33,7 @@ export class AuthController {
 
   @Post('/refreshed-token')
   public createRefreshedToken(@Body() refreshDto: RefreshDto) {
-    return this.authService.createRefreshedToken(
-      refreshDto.expiredToken,
-      refreshDto.refreshToken,
-    );
+    return this.authService.createRefreshedToken(refreshDto.expiredToken);
   }
 
   @UseGuards(AuthGuard)

@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import JwtService from './jwt.service';
 import RefreshTokenRepository from './refreshToken.repository';
+import TokenExpiryValidator from './validators/tokenExpiry.validator';
+import RefreshTokenValidator from './validators/refreshToken.validator';
 
 @Module({
   imports: [
@@ -16,7 +18,13 @@ import RefreshTokenRepository from './refreshToken.repository';
       signOptions: { expiresIn: '60s' },
     }),
   ],
-  providers: [AuthService, JwtService, RefreshTokenRepository],
+  providers: [
+    AuthService,
+    JwtService,
+    RefreshTokenRepository,
+    TokenExpiryValidator,
+    RefreshTokenValidator,
+  ],
   exports: [AuthService],
   controllers: [AuthController],
 })
