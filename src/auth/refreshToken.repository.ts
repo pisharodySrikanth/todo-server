@@ -26,8 +26,10 @@ export default class RefreshTokenRepository {
     ];
   }
 
-  public deleteByToken(token: RefreshToken['token']) {
-    const index = refreshTokens.findIndex((r) => r.token === token);
+  public deleteByToken(token: RefreshToken['token'], userId: User['id']) {
+    const index = refreshTokens.findIndex(
+      (r) => r.token === token && r.userId === userId,
+    );
 
     if (index === -1) {
       throw new Error('Token not found');

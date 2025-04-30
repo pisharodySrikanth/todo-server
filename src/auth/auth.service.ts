@@ -6,8 +6,9 @@ import {
 import { JwtService as JwtLibService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants';
+import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import SigninDto from './dto/signin.dto';
+import CreateUserDto from './dto/createUser.dto';
 import JwtService from './jwt.service';
 import RefreshTokenRepository from './refreshToken.repository';
 import JwtPayload from './types/jwtPayload';
@@ -21,7 +22,7 @@ export class AuthService {
     private readonly jwtLibService: JwtLibService,
   ) {}
 
-  public async authenticate(userName: string, password: string) {
+  public async createToken(userName: string, password: string) {
     const user = await this.userService.findByUserName(userName, true);
 
     if (user === null) {
@@ -42,10 +43,11 @@ export class AuthService {
 
     return {
       jwtToken: await this.jwtService.createClientToken(user.id, user.userName),
+      refreshToken: await this.jwtService.createRefreshToken(user.id),
     };
   }
 
-  public async signin(user: SigninDto) {
+  public async createUser(user: CreateUserDto) {
     const passwordHash = await hash(user.password, BCRYPT_SALT_ROUNDS);
 
     const newUser = await this.userService.create({
@@ -59,10 +61,14 @@ export class AuthService {
         newUser.id,
         newUser.userName,
       ),
+      refreshToken: await this.jwtService.createRefreshToken(newUser.id),
     };
   }
 
-  public async refresh(expiredToken: string, refreshToken: string) {
+  public async createRefreshedToken(
+    expiredToken: string,
+    refreshToken: string,
+  ) {
     const expired = await this.jwtService.hasExpired(expiredToken);
 
     if (!expired) {
@@ -91,5 +97,9 @@ export class AuthService {
         payload.userName,
       ),
     };
+  }
+
+  public deleteRefreshToken(userId: User['id'], refreshToken: string) {
+    return this.refreshTokenRepository.deleteByToken(refreshToken, userId);
   }
 }

@@ -5,6 +5,7 @@ import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import JwtService from './jwt.service';
+import RefreshTokenRepository from './refreshToken.repository';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import JwtService from './jwt.service';
       signOptions: { expiresIn: '60s' },
     }),
   ],
-  providers: [AuthService, JwtService],
+  providers: [AuthService, JwtService, RefreshTokenRepository],
   exports: [AuthService],
   controllers: [AuthController],
 })

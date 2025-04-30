@@ -1,4 +1,4 @@
-export default class SigninDto {
+export default class CreateUser {
   userName: string;
   password: string;
   name: string;
