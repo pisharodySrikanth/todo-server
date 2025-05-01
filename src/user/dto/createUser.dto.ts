@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export default class CreateUser {
   @IsNotEmpty()
@@ -11,5 +11,9 @@ export default class CreateUser {
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  firstName: string;
+
+  @IsString()
+  @IsOptional()
+  lastName: string;
 }

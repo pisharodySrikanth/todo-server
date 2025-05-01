@@ -4,7 +4,7 @@ import { compare, hash } from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import CreateUserDto from './dto/createUser.dto';
+import CreateUserDto from '../user/dto/createUser.dto';
 import JwtService from './jwt.service';
 import RefreshTokenRepository from './refreshToken.repository';
 import JwtPayload from './types/jwtPayload';

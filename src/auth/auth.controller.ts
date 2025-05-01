@@ -11,7 +11,7 @@ import { User } from 'src/user/user.entity';
 import AuthGuard from './auth.guard';
 import { AuthService } from './auth.service';
 import CreateToken from './dto/createToken.dto';
-import CreateUser from './dto/createUser.dto';
+import CreateUser from '../user/dto/createUser.dto';
 import RefreshDto from './dto/refresh.dto';
 
 @Controller('auth')

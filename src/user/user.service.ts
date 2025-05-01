@@ -1,25 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import wait from 'src/utils/wait';
-import { User, UserWithoutPassword } from './user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import { omit } from 'lodash';
-
-const users: User[] = [
-  {
-    id: 1,
-    userName: 'srikanth',
-    name: 'Srikanth',
-    password: '$2b$10$/jjePF/WOrEmDCVcuPbTIeT74yB7oYz0ImpjJ8xZ50wXiaJbBk7R2',
-  },
-  {
-    id: 2,
-    userName: 'ramesh',
-    name: 'Ramesh',
-    password: 'password123',
-  },
-];
+import { Repository } from 'typeorm';
+import { User, UserWithoutPassword } from './user.entity';
+import CreateUser from './dto/createUser.dto';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
   public async findByUserName<T extends false>(
     userName: string,
     raw?: T,
@@ -32,35 +24,26 @@ export class UserService {
     userName: string,
     raw: T = false as T,
   ): Promise<unknown> {
-    await wait(1000);
-    const index = users.findIndex((user) => user.userName === userName);
+    const user = await this.userRepository.findOneBy({
+      userName,
+    });
 
-    if (index === -1) {
-      return null;
+    if (user === null || raw) {
+      return user;
     }
 
-    if (raw) {
-      return users[index];
-    }
-
-    return omit(users[index], 'password');
+    return omit(user, 'password');
   }
 
-  public async create(user: Omit<User, 'id'>): Promise<UserWithoutPassword> {
-    await wait(1000);
-    const exists = users.some((u) => u.userName === user.userName);
+  public async create(userDto: CreateUser): Promise<UserWithoutPassword> {
+    const user = new User();
+    user.firstName = userDto.firstName;
+    user.lastName = userDto.lastName;
+    user.userName = userDto.userName;
+    user.password = userDto.password;
 
-    if (exists) {
-      throw new Error('Username already exists');
-    }
+    const createdUser = await this.userRepository.save(user);
 
-    const newUser = {
-      ...user,
-      id: users.length + 1,
-    };
-
-    users.push(newUser);
-
-    return omit(newUser, 'password');
+    return omit(createdUser, 'password');
   }
 }
