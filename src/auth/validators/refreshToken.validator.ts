@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import RefreshDto from '../dto/refresh.dto';
-import RefreshTokenRepository from '../refreshToken.repository';
+import RefreshTokenService from '../refreshToken.service';
 import JwtPayload from '../types/jwtPayload';
 
 @Injectable()
@@ -15,7 +15,7 @@ export default class RefreshTokenValidator
   implements ValidatorConstraintInterface
 {
   constructor(
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtLibService: JwtService,
   ) {}
 
@@ -27,6 +27,6 @@ export default class RefreshTokenValidator
 
     const payload = this.jwtLibService.decode<JwtPayload>(expiredToken);
 
-    return this.refreshTokenRepository.isValid(value, payload.sub);
+    return this.refreshTokenService.isValid(value, payload.sub);
   }
 }

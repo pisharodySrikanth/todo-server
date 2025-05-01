@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import RefreshToken from './auth/refreshToken.entity';
 import TodoController from './todo/todo.controller';
 import TodoRepository from './todo/todo.repository';
 import TodoService from './todo/todo.service';
@@ -18,7 +19,7 @@ import { UserModule } from './user/user.module';
       username: 'root',
       password: 'password',
       database: 'todos',
-      entities: [User],
+      entities: [User, RefreshToken],
       synchronize: true,
     }),
     UserModule,

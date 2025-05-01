@@ -1,8 +1,30 @@
-type RefreshToken = {
-  id: number;
-  userId: number;
-  token: string;
-  exp: number;
-};
+import { User } from 'src/user/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-export default RefreshToken;
+@Entity()
+export default class RefreshToken {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @Column({ name: 'user_id' })
+  userId: number;
+
+  @Column()
+  token: string;
+
+  expiry: number;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+}

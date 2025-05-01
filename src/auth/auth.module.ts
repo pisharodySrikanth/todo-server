@@ -5,12 +5,15 @@ import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import JwtService from './jwt.service';
-import RefreshTokenRepository from './refreshToken.repository';
-import TokenExpiryValidator from './validators/tokenExpiry.validator';
+import RefreshTokenService from './refreshToken.service';
 import RefreshTokenValidator from './validators/refreshToken.validator';
+import TokenExpiryValidator from './validators/tokenExpiry.validator';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import RefreshToken from './refreshToken.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([RefreshToken]),
     UserModule,
     JwtModule.register({
       global: true,
@@ -21,7 +24,7 @@ import RefreshTokenValidator from './validators/refreshToken.validator';
   providers: [
     AuthService,
     JwtService,
-    RefreshTokenRepository,
+    RefreshTokenService,
     TokenExpiryValidator,
     RefreshTokenValidator,
   ],

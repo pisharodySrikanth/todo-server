@@ -6,7 +6,7 @@ import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import CreateUserDto from '../user/dto/createUser.dto';
 import JwtService from './jwt.service';
-import RefreshTokenRepository from './refreshToken.repository';
+import RefreshTokenService from './refreshToken.service';
 import JwtPayload from './types/jwtPayload';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtLibService: JwtLibService,
   ) {}
 
@@ -29,7 +29,6 @@ export class AuthService {
       const match = await compare(password, user.password);
 
       if (!match) {
-        console.log('not match');
         throw new UnauthorizedException();
       }
     } catch (e) {
@@ -73,6 +72,6 @@ export class AuthService {
   }
 
   public deleteRefreshToken(userId: User['id'], refreshToken: string) {
-    return this.refreshTokenRepository.deleteByToken(refreshToken, userId);
+    return this.refreshTokenService.deleteByToken(refreshToken, userId);
   }
 }

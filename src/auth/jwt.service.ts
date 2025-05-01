@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { JwtService as JwtLibService, TokenExpiredError } from '@nestjs/jwt';
 import { jwt } from 'src/constants';
 import { User } from 'src/user/user.entity';
-import RefreshTokenRepository from './refreshToken.repository';
+import RefreshTokenService from './refreshToken.service';
 
 const REFRESH_EXPIRY = 6 * 30 * 24 * 60 * 60; // 6 months in seconds
 
 @Injectable()
 export default class JwtService {
   constructor(
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtLibService: JwtLibService,
   ) {}
 
@@ -30,7 +30,7 @@ export default class JwtService {
       },
     );
 
-    this.refreshTokenRepository.store(userId, token, REFRESH_EXPIRY);
+    await this.refreshTokenService.store(userId, token, REFRESH_EXPIRY);
 
     return token;
   }
