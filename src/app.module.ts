@@ -4,11 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import RefreshToken from './auth/refreshToken.entity';
-import TodoController from './todo/todo.controller';
-import TodoRepository from './todo/todo.repository';
-import TodoService from './todo/todo.service';
+import { TodoModule } from './todo/todo.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
+import TodoList from './todo/todo-list.entity';
 
 @Module({
   imports: [
@@ -19,13 +18,15 @@ import { UserModule } from './user/user.module';
       username: 'root',
       password: 'password',
       database: 'todos',
-      entities: [User, RefreshToken],
+      entities: [User, RefreshToken, TodoList],
       synchronize: true,
+      logging: true,
     }),
     UserModule,
     AuthModule,
+    TodoModule,
   ],
-  controllers: [AppController, TodoController],
-  providers: [AppService, TodoService, TodoRepository],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
