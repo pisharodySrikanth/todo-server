@@ -1,16 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { QueryRunnerFactory } from 'src/database/QueryRunnerFactory';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import CreateTodoListDto from './dto/createTodoList.dto';
 import UpdateTodoListDto from './dto/updateTodoList.dto';
 import TodoList from './todo-list.entity';
+import { TodoService } from './todo.service';
 
 @Injectable()
 export class TodoListService {
   constructor(
     @InjectRepository(TodoList)
     private readonly todoListRepository: Repository<TodoList>,
+    private readonly todoService: TodoService,
+    private readonly queryRunnerFactory: QueryRunnerFactory,
   ) {}
 
   public async getAll(userId: User['id']) {
@@ -53,18 +57,39 @@ export class TodoListService {
     id: TodoList['id'],
     updateDto: UpdateTodoListDto,
   ) {
-    const todo = await this.todoListRepository.findOneBy({
-      id,
-      userId,
-    });
+    const queryRunner = this.queryRunnerFactory.generate();
 
-    if (todo === null) {
-      throw new NotFoundException('Todo not found');
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const repository = queryRunner.manager.getRepository(TodoList);
+      const queries: Promise<any>[] = [
+        repository.update(
+          {
+            id,
+            userId,
+          },
+          {
+            title: updateDto.title,
+          },
+        ),
+      ];
+
+      if (updateDto.todos !== undefined) {
+        queries.push(
+          this.todoService.reorderTodos(updateDto.todos, id, queryRunner),
+        );
+      }
+
+      await Promise.all(queries);
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
-
-    todo.title = updateDto.title;
-
-    return this.todoListRepository.save(todo);
   }
 
   public async delete(userId: User['id'], id: TodoList['id']) {

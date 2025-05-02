@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IQueryRunner } from 'src/database/types';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import CreateTodoDto from './dto/createTodo.dto';
@@ -60,5 +61,27 @@ export class TodoService {
       userId,
       id,
     });
+  }
+
+  public async reorderTodos(
+    ids: Todo['id'][],
+    listId: TodoList['id'],
+    queryRunner: IQueryRunner,
+  ) {
+    const repository = queryRunner.manager.getRepository(Todo);
+
+    const queries = ids.map((id, index) => {
+      return repository.update(
+        {
+          id,
+          listId,
+        },
+        {
+          orderNumber: index,
+        },
+      );
+    });
+
+    await Promise.all(queries);
   }
 }
