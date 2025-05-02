@@ -5,8 +5,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import Todo from './todo.entity';
 
 @Entity()
 export default class TodoList {
@@ -25,6 +27,9 @@ export default class TodoList {
 
   @Column({ name: 'order_number' })
   orderNumber: number;
+
+  @OneToMany(() => Todo, (todo) => todo.list)
+  todos: Todo[];
 
   @DeleteDateColumn({ name: 'delete_date' })
   deleteDate: Date;

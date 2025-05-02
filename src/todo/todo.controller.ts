@@ -2,36 +2,43 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
   Post,
   Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import TodoService from './todo.service';
+import { RequestWithUser } from 'src/types/request';
 import CreateTodoDto from './dto/createTodo.dto';
 import UpdateTodoDto from './dto/updateTodo.dto';
+import { TodoService } from './todo.service';
+import AuthGuard from 'src/auth/auth.guard';
 
-@Controller('/todos')
-export default class TodoController {
+@UseGuards(AuthGuard)
+@Controller()
+export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
-  @Get()
-  public index() {
-    return this.todoService.findAll();
+  @Post('todo-lists/:listId/todos')
+  public store(
+    @Request() request: RequestWithUser,
+    @Param('listId') listId: string,
+    @Body() body: CreateTodoDto,
+  ) {
+    return this.todoService.create(request.user.id, Number(listId), body);
   }
 
-  @Post()
-  public store(@Body() body: CreateTodoDto) {
-    this.todoService.create(body);
+  @Put('todos/:id')
+  public update(
+    @Param('id') id: string,
+    @Request() request: RequestWithUser,
+    @Body() body: UpdateTodoDto,
+  ) {
+    return this.todoService.update(Number(id), request.user.id, body);
   }
 
-  @Put(':id')
-  public update(@Param('id') id: string, @Body() body: UpdateTodoDto) {
-    this.todoService.update(Number(id), body);
-  }
-
-  @Delete(':id')
-  public delete(@Param('id') id: string) {
-    this.todoService.delete(Number(id));
+  @Delete('todos/:id')
+  public delete(@Param('id') id: string, @Request() request: RequestWithUser) {
+    return this.todoService.delete(Number(id), request.user.id);
   }
 }

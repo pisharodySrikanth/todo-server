@@ -1,4 +1,6 @@
+import { IsString } from 'class-validator';
+
 export default class CreateTodoDto {
-  title: string;
+  @IsString()
   content: string;
 }

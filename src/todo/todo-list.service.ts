@@ -14,8 +14,13 @@ export class TodoListService {
   ) {}
 
   public async getAll(userId: User['id']) {
-    return this.todoListRepository.findBy({
-      userId,
+    return this.todoListRepository.find({
+      where: {
+        userId,
+      },
+      relations: {
+        todos: true,
+      },
     });
   }
 

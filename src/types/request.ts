@@ -1,0 +1,6 @@
+import { Request } from 'express';
+import { User } from 'src/user/user.entity';
+
+export type RequestWithUser = Request & {
+  user: User;
+};

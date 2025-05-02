@@ -4,10 +4,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import RefreshToken from './auth/refreshToken.entity';
+import TodoList from './todo/todo-list.entity';
+import Todo from './todo/todo.entity';
 import { TodoModule } from './todo/todo.module';
 import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
-import TodoList from './todo/todo-list.entity';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import TodoList from './todo/todo-list.entity';
       username: 'root',
       password: 'password',
       database: 'todos',
-      entities: [User, RefreshToken, TodoList],
+      entities: [User, RefreshToken, TodoList, Todo],
       synchronize: true,
       logging: true,
     }),
